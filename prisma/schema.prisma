@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Definición de la entidad User
+model User {
+  id           Int       @id @default(autoincrement())
+  username     String
+  email        String    @unique
+  password     String    // Puedes adaptar esto para almacenar la contraseña de manera segura
+  createdAt    DateTime  @default(now())
+  
+  // Relación con las tareas del usuario
+  tasks        Task[]
+}
+
+// Definición de la entidad Task
+model Task {
+  id           Int       @id @default(autoincrement())
+  userId       Int
+  title        String
+  description  String?
+  dueDate      DateTime?
+  status       String    // Puedes definir estados como 'pendiente', 'en progreso', 'completada', etc.
+  createdAt    DateTime  @default(now())
+
+  // Relación con el usuario
+  user         User      @relation(fields: [userId], references: [id])
+
+  // Relación inversa con los recordatorios
+  reminders    Reminder[]
+}
+
+// Definición de la entidad Reminder
+model Reminder {
+  id           Int       @id @default(autoincrement())
+  taskId       Int
+  message      String
+  reminderDate DateTime
+  createdAt    DateTime  @default(now())
+
+  // Relación con la tarea
+  task         Task      @relation(fields: [taskId], references: [id])
+}
